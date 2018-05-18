@@ -8,19 +8,21 @@
     const imgPath = 'img/miku.jpg';
     const shadowColor = 'rgb(80, 155, 188)';
     const musicFile = 'music/miku.mp3'
+	
+	var playMusic = function() {
+		var promise = $('audio').attr('src', musicFile)[0].play();
 
-    var promise = $('audio').attr('src', musicFile)[0].play();
+		if (promise !== undefined) {
+			promise.then(_ => {
+				// Autoplay started
+			}).catch(error => {
+				// Autoplay was prevented.
+				$('body').one('mouseover', playMusic);
+			});
+		}
+	}
 
-    if (promise !== undefined) {
-    promise.then(_ => {
-        // Autoplay started
-    }).catch(error => {
-        // Autoplay was prevented.
-        $('body').one('mouseover', function() {
-            $('audio').attr('src', musicFile)[0].play();
-        })
-    });
-    }
+    playMusic();
 
     var container = $('div.spotty');
     var pxByCell = imageSize / boardSideLength;
@@ -28,6 +30,9 @@
     for(var i = 0; i < boardSideLength; i++) {
         var newDivLine = $('<div />');
         container.append(newDivLine);
+		
+		var pseudoDiv = $('<div />').width(0).height(0);
+		newDivLine.append(pseudoDiv);
 
         for(var j = 0; j < boardSideLength; j++) {
             var newCell = $('<div />')
@@ -55,21 +60,24 @@
     })
 
     $('div.cell.active').click(function() {
-       /* $('div[data-number="' + lastCellNumber + '"]')
-            .css('background-image', 'url(' + imgPath + ')');
-        
-        $('div.cell.active')
-            .unbind('mouseenter mouseleave')
-            .css('box-shadow', 'none');
-
-        $('div.cell.active').removeClass('active');*/
+       
         //var freeCellIndex = $('div.cell').index($('div.cell[data-number=15]'));
         switchCell($(this), $('div.cell[data-number=' + lastCellNumber + ']'));
-        checkForWin();
+        
+		if(checkForWin()) {
+			$('div[data-number="' + lastCellNumber + '"]')
+				.css('background-image', 'url(' + imgPath + ')');
+
+			$('div.cell.active')
+				.unbind('mouseenter mouseleave click')
+				.css('box-shadow', 'none');
+
+			$('div.cell.active').removeClass('active');
+		}
     })
 
     var switchCell = function(firstCell, secondCell) {
-        var isFirstInsertAfter = secondCell.prev().length !== 0;
+        /*var isFirstInsertAfter = secondCell.prev().length !== 0;
         var suppotElementForFirst = isFirstInsertAfter ? secondCell.prev() : secondCell.next();
 
         var isSecondInsertAfter = firstCell.prev().length !== 0;
@@ -87,7 +95,12 @@
         }
         else {
             secondCell.insertBefore(suppotElementForSecond);
-        }
+        }*/
+		var suppotElementForFirst = secondCell.prev();
+		var suppotElementForSecond = firstCell.prev();
+		
+		firstCell.insertAfter(suppotElementForFirst);
+		secondCell.insertAfter(suppotElementForSecond);
     }
 
     var checkForWin = function() {
@@ -114,8 +127,7 @@
                 }
             }
         });
-
-        if(isWin)
-            console.log('Win');
+		
+		return isWin;
     }
 })();
