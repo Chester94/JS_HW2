@@ -64,19 +64,28 @@ $(function() {
     })
 
     $('div.cell.active').click(function() {
-       
-        //var freeCellIndex = $('div.cell').index($('div.cell[data-number=15]'));
-        switchCell($(this), $('div.cell[data-number=' + lastCellNumber + ']'));
-        
-		if(checkForWin()) {
-			$('div[data-number="' + lastCellNumber + '"]')
-				.css('background-image', 'url(' + imgPath + ')');
+        var freeCellIndex = $('div.cell').index($('div.cell[data-number=' + lastCellNumber + ']'));
+		var currentIndex = $('div.cell').index($(this));
+		
+		if(
+			(currentIndex === freeCellIndex + 1) || 
+			(currentIndex === freeCellIndex - 1) || 
+			(currentIndex === freeCellIndex + boardSideLength) || 
+			(currentIndex === freeCellIndex - boardSideLength)
+		)
+		{
+			switchCell($(this), $('div.cell[data-number=' + lastCellNumber + ']'));
+			
+			/*if(checkForWin()) {
+				$('div[data-number="' + lastCellNumber + '"]')
+					.css('background-image', 'url(' + imgPath + ')');
 
-			$('div.cell.active')
-				.unbind('mouseenter mouseleave click')
-				.css('box-shadow', 'none');
+				$('div.cell.active')
+					.unbind('mouseenter mouseleave click')
+					.css('box-shadow', 'none');
 
-			$('div.cell.active').removeClass('active');
+				$('div.cell.active').removeClass('active');
+			}*/
 		}
     })
 
