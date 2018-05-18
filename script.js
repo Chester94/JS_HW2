@@ -1,13 +1,17 @@
-(function() {
+$(function() {
     const imageSize = 600;
     const boardSideLength = 4;
     const lastCellNumber = boardSideLength * boardSideLength - 1;
+	// const pageTitle = 'Lena';
     // const imgPath = 'img/lena.jpg';
     // const shadowColor = 'rgb(48, 24, 101)';
     // const musicFile = 'music/lena.mp3';
+	const pageTitle = 'Miku';
     const imgPath = 'img/miku.jpg';
     const shadowColor = 'rgb(80, 155, 188)';
     const musicFile = 'music/miku.mp3'
+	
+	$(document).attr('title', pageTitle);
 	
 	var playMusic = function() {
 		var promise = $('audio').attr('src', musicFile)[0].play();
@@ -130,4 +134,4 @@
 		
 		return isWin;
     }
-})();
+});
