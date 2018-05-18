@@ -1,6 +1,6 @@
 body {
-    background-image: url('img/background.jpg');
-	background-size: cover;
+    background: url(img/background.jpg) no-repeat center center fixed;
+    background-size: cover;
 }
 
 .main-container {
@@ -10,7 +10,7 @@ body {
 }
 
 .spotty { 
-    margin: 75px auto auto auto;
+    margin: 150px auto auto auto;
     font-size: 0;
     display: inline-block;
     border: 2px solid rgba(0, 0, 0, 0.7);
@@ -26,6 +26,10 @@ body {
 }
 
 .cell.active:hover { 
-    transform: scale(1.1, 1.1); 
+    transform: scale(1.15, 1.15); 
     z-index: 100;
+}
+
+.cell.inactive { 
+    background-color: rgba(255, 255, 255, 1);
 }

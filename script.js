@@ -1,146 +1,188 @@
-$(function() {
-    const imageSize = 600;
-    const boardSideLength = 4;
-    const lastCellNumber = boardSideLength * boardSideLength - 1;
-	// const pageTitle = 'Lena';
-    // const imgPath = 'img/lena.jpg';
-    // const shadowColor = 'rgb(48, 24, 101)';
-    // const musicFile = 'music/lena.mp3';
-	const pageTitle = 'Miku';
-    const imgPath = 'img/miku.jpg';
-    const shadowColor = 'rgb(80, 155, 188)';
-    const musicFile = 'music/miku.mp3'
-	
-	$(document).attr('title', pageTitle);
-	
-	var playMusic = function() {
-		var promise = $('audio').attr('src', musicFile)[0].play();
+var getRandomInt = function(min, max) {
+    return Math.floor(Math.random() * (max - min)) + min;
+}
 
-		if (promise !== undefined) {
-			promise.then(_ => {
-				// Autoplay started
-			}).catch(error => {
-				// Autoplay was prevented.
-				$('body').one('mouseover', playMusic);
-			});
-		}
-	}
+var levels = (function() {
+    var createLevel = function(name, difficult, shadowColor, imgPath, musicFile) {
+        var level = {};
+        level.name = name;
+        level.difficult = difficult;
+        level.shadowColor = shadowColor;
+        level.imgPath = imgPath;
+        level.musicFile = musicFile;
 
-    playMusic();
-
-    var container = $('div.spotty');
-    var pxByCell = imageSize / boardSideLength;
-
-    for(var i = 0; i < boardSideLength; i++) {
-        var newDivLine = $('<div />');
-        container.append(newDivLine);
-		
-		var pseudoDiv = $('<div />').width(0).height(0);
-		newDivLine.append(pseudoDiv);
-
-        for(var j = 0; j < boardSideLength; j++) {
-            var newCell = $('<div />')
-                .addClass('cell active')
-                .attr('data-number', boardSideLength * i + j)
-                .css('background-position', -pxByCell * j + 'px ' + -pxByCell * i + 'px');
-                
-            newDivLine.append(newCell);
-        }
+        return level;
     }
 
-    $('div.cell.active')
-        .width(pxByCell)
-        .height(pxByCell)
-        .css('background-image', 'url(' + imgPath + ')');
+    return [
+        createLevel('Lena', 3, 'rgb(48, 24, 101)', 'img/lena.jpg', 'music/lena.mp3'),
+        createLevel('Miku', 4, 'rgb(80, 155, 188)', 'img/miku.jpg', 'music/miku.mp3')
+    ];
+})();
 
-    $('div[data-number="' + lastCellNumber + '"]')
-        .css('background-image', 'none')
-        .removeClass('active');
+var modlelFactory = (function() {
+    var mf = {};
 
-    $('div.cell.active').hover(function() {
-        $(this).css('box-shadow', '0 0 6px 6px ' + shadowColor)
-    }, function() {
-        $(this).css('box-shadow', 'none')
-    })
-
-    $('div.cell.active').click(function() {
-        var freeCellIndex = $('div.cell').index($('div.cell[data-number=' + lastCellNumber + ']'));
-		var currentIndex = $('div.cell').index($(this));
-		
-		if(
-			(currentIndex === freeCellIndex + 1) || 
-			(currentIndex === freeCellIndex - 1) || 
-			(currentIndex === freeCellIndex + boardSideLength) || 
-			(currentIndex === freeCellIndex - boardSideLength)
-		)
-		{
-			switchCell($(this), $('div.cell[data-number=' + lastCellNumber + ']'));
-			
-			/*if(checkForWin()) {
-				$('div[data-number="' + lastCellNumber + '"]')
-					.css('background-image', 'url(' + imgPath + ')');
-
-				$('div.cell.active')
-					.unbind('mouseenter mouseleave click')
-					.css('box-shadow', 'none');
-
-				$('div.cell.active').removeClass('active');
-			}*/
-		}
-    })
-
-    var switchCell = function(firstCell, secondCell) {
-        /*var isFirstInsertAfter = secondCell.prev().length !== 0;
-        var suppotElementForFirst = isFirstInsertAfter ? secondCell.prev() : secondCell.next();
-
-        var isSecondInsertAfter = firstCell.prev().length !== 0;
-        var suppotElementForSecond = isSecondInsertAfter ? firstCell.prev() : firstCell.next();
-
-        if(isFirstInsertAfter) {
-            firstCell.insertAfter(suppotElementForFirst);
-        }
-        else {
-            firstCell.insertBefore(suppotElementForFirst);
-        }
-
-        if(isSecondInsertAfter) {
-            secondCell.insertAfter(suppotElementForSecond);
-        }
-        else {
-            secondCell.insertBefore(suppotElementForSecond);
-        }*/
-		var suppotElementForFirst = secondCell.prev();
-		var suppotElementForSecond = firstCell.prev();
-		
-		firstCell.insertAfter(suppotElementForFirst);
-		secondCell.insertAfter(suppotElementForSecond);
-    }
-
-    var checkForWin = function() {
-        var isWin = true;
-        /*$('div.cell').toArray().forEach(function(element, index, array) {
-            if(index !== 0) {
-                var currentNumber = parseInt($(element).attr('data-number'));
-                var prevNumber = parseInt($(array[index - 1]).attr('data-number'));
-
-                if(prevNumber >= currentNumber)
-                    isWin = false;
+    mf.createModel = function(difficult) {
+        var model = [];
+        for(var i = 0; i < difficult * difficult; i++) {
+            model[i] = {
+                number: i,
+                isActive: true,
+                row: Math.floor(i / difficult),
+                column: i % difficult
             }
-        })*/
+        }
+        model[difficult * difficult - 1].isActive = false;
 
-        var cells = $('div.cell');
-        cells.each(function(index) {
-            if(index > 0) {
-                var currentNumber = parseInt($(this).attr('data-number'));
-                var prevNumber = parseInt(cells.eq(index-1).attr('data-number'));
+        model.isWin = function() {
+            var isWin = true;
 
-                if(prevNumber >= currentNumber) {
+            this.forEach(function(cell, index, array) {
+                if(index > 0 && cell.number <= array[index - 1].number) {
                     isWin = false;
                     return false;
                 }
+            })
+
+            return isWin;
+        }
+
+        model.swap = function(targetCellNumber) {
+            if(!this.isSwapAvalible(targetCellNumber))
+                return;
+
+            var targetCellIndex = findCellIndexByNumber(targetCellNumber);
+            var emptyCellIndex = findEmptyCellIndex();
+            
+            var tmpCell = model[emptyCellIndex];
+            model[emptyCellIndex] = model[targetCellIndex];
+            model[targetCellIndex] = tmpCell;
+        }
+
+        model.isSwapAvalible = function(targetCellNumber) {
+            var targetCellIndex = findCellIndexByNumber(targetCellNumber);
+            var emptyCellIndex = findEmptyCellIndex();
+
+            return (targetCellIndex === emptyCellIndex + 1) || 
+                    (targetCellIndex === emptyCellIndex - 1) || 
+                    (targetCellIndex === emptyCellIndex + difficult) || 
+                    (targetCellIndex === emptyCellIndex - difficult)
+        }
+
+        model.mix = function() {
+            for(var i = 0; i < 1000; i++) {
+                this.swap(getRandomInt(0, difficult*difficult));
             }
-        });
-		
-		return isWin;
+        }
+
+        var findCellIndexByNumber = function(cellNumber) {
+            return model.findIndex(function(cell) {
+                return cell.number === cellNumber;
+            })
+        }
+
+        var findEmptyCellIndex = function() {
+            return model.findIndex(function(cell) {
+                return cell.isActive === false;
+            })
+        }
+
+        return model;
     }
-});
+
+    return mf;
+})();
+
+var viewFactory = (function() {
+    vf = {};
+    const imageSize = 600;
+
+    vf.createView = function() {
+        var view = {};
+
+        view.create = function(model, level) {
+            var pxByCell = imageSize / level.difficult;
+
+            var spotty = $('div.spotty');
+            spotty.empty();
+            var newDivLine;
+
+            model.forEach(function(cell, index) {
+                if(!(index % level.difficult)) {
+                    newDivLine = $('<div />')
+                    spotty.append(newDivLine);
+                }
+
+                var newCell = $('<div />')
+                    .width(pxByCell)
+                    .height(pxByCell)
+                    .attr('data-number', cell.number)
+                    .addClass('cell ' + (cell.isActive && !model.isWin() ? 'active' : 'inactive'))
+                    .css('background-image', (cell.isActive || model.isWin() ? 'url(' + level.imgPath + ')' : 'none'))
+                    .css('background-position', -pxByCell * cell.column + 'px ' + -pxByCell * cell.row + 'px');
+                
+                newDivLine.append(newCell);
+            })
+
+            $('div.cell.active').hover(function() {
+                $(this).css('box-shadow', '0 0 6px 6px ' + level.shadowColor)
+            }, function() {
+                $(this).css('box-shadow', 'none')
+            })
+
+            $('div.cell.active').click(function() {
+                var targetCellNumber = parseInt($(this).attr('data-number'));
+
+                if(model.isSwapAvalible(targetCellNumber)) {
+                    model.swap(targetCellNumber);
+                    view.create(model, level);
+                }
+            })
+        }
+
+        return view;
+    }
+
+    return vf;
+})();
+
+var player = (function() {
+    var p = {};
+
+    p.play = function(file) {
+        var playMusic = function() {
+            var promise = $('audio').attr('src', file)[0].play();
+    
+            if (promise !== undefined) {
+                promise.then(_ => {
+                    // Autoplay started
+                }).catch(error => {
+                    // Autoplay was prevented.
+                    $('body').one('mouseover', playMusic);
+                });
+            }
+        }
+
+        playMusic();
+    }
+
+    p.stop = function(file, e) {
+        $('audio')[0].pause();
+        $('audio').attr('currentTime', 0);
+    }
+
+    return p;
+})();
+
+var level = levels[1];
+
+$(document).attr('title', level.name)
+
+player.play(level.musicFile);
+
+var model = modlelFactory.createModel(level.difficult);
+model.mix();
+
+var view = viewFactory.createView();
+view.create(model, level);
