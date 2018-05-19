@@ -88,3 +88,7 @@ body {
     display: inline-block;
     border-radius: 50%;
 }
+
+.levelBtn.active {
+    transform: scale(1.25, 1.25);
+}

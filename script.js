@@ -19,7 +19,7 @@ $(function() {
         return [
             createLevel('Lena', 3, 'rgb(48, 24, 101)', 'img/lena.jpg', 'img/ln.png', 'music/lena.mp3'),
             createLevel('Alice', 4, 'rgb(223, 82, 33)', 'img/alice.jpg', 'img/al.png', 'music/alice.mp3'),
-            createLevel('Miku', 4, 'rgb(84, 216, 166)', 'img/miku.jpg', 'img/mi.png', 'music/miku.mp3')
+            createLevel('Miku', 5, 'rgb(84, 216, 166)', 'img/miku.jpg', 'img/mi.png', 'music/miku.mp3')
         ];
     })();
 
@@ -31,12 +31,13 @@ $(function() {
             for(var i = 0; i < difficult * difficult; i++) {
                 model[i] = {
                     number: i,
-                    isActive: true,
+                    isEmpty: false,
                     row: Math.floor(i / difficult),
                     column: i % difficult
                 }
             }
-            model[difficult * difficult - 1].isActive = false;
+            model.emptyCellIndex = difficult * difficult - 1;
+            model[model.emptyCellIndex].isEmpty = true;
 
             model.isWin = function() {
                 var isWin = true;
@@ -51,27 +52,23 @@ $(function() {
                 return isWin;
             }
 
-            model.swap = function(targetCellNumber) {
-                if(!this.isSwapAvalible(targetCellNumber))
+            model.swap = function(targetCellIndex) {
+                if(!this.isSwapAvalible(targetCellIndex))
                     return;
-
-                var targetCellIndex = findCellIndexByNumber(targetCellNumber);
-                var emptyCellIndex = findEmptyCellIndex();
                 
-                var tmpCell = model[emptyCellIndex];
-                model[emptyCellIndex] = model[targetCellIndex];
+                var tmpCell = model[model.emptyCellIndex];
+                model[model.emptyCellIndex] = model[targetCellIndex];
                 model[targetCellIndex] = tmpCell;
+
+                model.emptyCellIndex = targetCellIndex;
             }
 
-            model.isSwapAvalible = function(targetCellNumber) {
-                var targetCellIndex = findCellIndexByNumber(targetCellNumber);
-                var emptyCellIndex = findEmptyCellIndex();
-
+            model.isSwapAvalible = function(targetCellIndex) {
                 var targetCellRow = Math.floor(targetCellIndex / difficult);
                 var targetCellColumn = targetCellIndex % difficult;
 
-                var emptyCellRow = Math.floor(emptyCellIndex / difficult);
-                var emptyCellColumn = emptyCellIndex % difficult;
+                var emptyCellRow = Math.floor(model.emptyCellIndex / difficult);
+                var emptyCellColumn = model.emptyCellIndex % difficult;
 
                 return (targetCellRow + 1 === emptyCellRow && targetCellColumn === emptyCellColumn) ||
                     (targetCellRow - 1 === emptyCellRow && targetCellColumn === emptyCellColumn) ||
@@ -80,21 +77,9 @@ $(function() {
             }
 
             model.mix = function() {
-                for(var i = 0; i < 20; i++) {
+                for(var i = 0; i < 100; i++) {
                     this.swap(getRandomInt(0, difficult*difficult));
                 }
-            }
-
-            var findCellIndexByNumber = function(cellNumber) {
-                return model.findIndex(function(cell) {
-                    return cell.number === cellNumber;
-                })
-            }
-
-            var findEmptyCellIndex = function() {
-                return model.findIndex(function(cell) {
-                    return cell.isActive === false;
-                })
             }
 
             return model;
@@ -123,9 +108,9 @@ $(function() {
                 var newCell = $('<div />')
                     .width(pxByCell)
                     .height(pxByCell)
-                    .attr('data-number', cell.number)
-                    .addClass('cell ' + (cell.isActive && !model.isWin() ? 'active' : 'inactive'))
-                    .css('background-image', (cell.isActive || model.isWin() ? 'url(' + level.imgPath + ')' : 'none'))
+                    .attr('data-number', index)
+                    .addClass('cell ' + (model.isSwapAvalible(index) && !model.isWin() ? 'active' : 'inactive'))
+                    .css('background-image', (!cell.isEmpty || model.isWin() ? 'url(' + level.imgPath + ')' : 'none'))
                     .css('background-position', -pxByCell * cell.column + 'px ' + -pxByCell * cell.row + 'px');
                 
                 newDivLine.append(newCell);
@@ -215,7 +200,7 @@ $(function() {
 
     var currentLevel;
 
-    var divLevels = $('div.levels');
+    var $divLevels = $('div.levels');
     levels.forEach(function(level, index) {
         var $btn = $('<div />')
                     .addClass('btn levelBtn')
@@ -228,12 +213,24 @@ $(function() {
             $(this).css('box-shadow', 'none')
         })
 
-        divLevels.append($btn);
+        $divLevels.append($btn);
     });
 
     $('div.levelBtn').click(function() {
         var levelIndex = parseInt($(this).attr('level-index'));
+
+        if(currentLevel === levels[levelIndex])
+            return;
+        
         currentLevel = levels[levelIndex];
+
+        $('div.levelBtn').removeClass('active').css('box-shadow', 'none')
+            .on('mouseleave', function() {
+                $(this).css('box-shadow', 'none')
+            });
+            
+        $(this).addClass('active').css('box-shadow', '0 0 6px 6px ' + currentLevel.shadowColor)
+            .off('mouseleave');
 
         restart(currentLevel);
     });
