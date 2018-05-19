@@ -67,10 +67,16 @@ $(function() {
                 var targetCellIndex = findCellIndexByNumber(targetCellNumber);
                 var emptyCellIndex = findEmptyCellIndex();
 
-                return (targetCellIndex === emptyCellIndex + 1) || 
-                        (targetCellIndex === emptyCellIndex - 1) || 
-                        (targetCellIndex === emptyCellIndex + difficult) || 
-                        (targetCellIndex === emptyCellIndex - difficult)
+                var targetCellRow = Math.floor(targetCellIndex / difficult);
+                var targetCellColumn = targetCellIndex % difficult;
+
+                var emptyCellRow = Math.floor(emptyCellIndex / difficult);
+                var emptyCellColumn = emptyCellIndex % difficult;
+
+                return (targetCellRow + 1 === emptyCellRow && targetCellColumn === emptyCellColumn) ||
+                    (targetCellRow - 1 === emptyCellRow && targetCellColumn === emptyCellColumn) ||
+                    (targetCellRow === emptyCellRow && targetCellColumn + 1 === emptyCellColumn) ||
+                    (targetCellRow === emptyCellRow && targetCellColumn - 1 === emptyCellColumn);
             }
 
             model.mix = function() {
