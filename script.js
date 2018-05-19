@@ -211,12 +211,18 @@ $(function() {
 
     var divLevels = $('div.levels');
     levels.forEach(function(level, index) {
-        var btn = $('<div />')
+        var $btn = $('<div />')
                     .addClass('btn levelBtn')
                     .css('background-image', 'url(' + level.btnPath + ')')
                     .attr('level-index', index);
 
-        divLevels.append(btn);
+        $btn.hover(function() {
+            $(this).css('box-shadow', '0 0 6px 6px ' + level.shadowColor)
+        }, function() {
+            $(this).css('box-shadow', 'none')
+        })
+
+        divLevels.append($btn);
     });
 
     $('div.levelBtn').click(function() {

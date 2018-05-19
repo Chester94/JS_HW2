@@ -86,4 +86,5 @@ body {
     background-size: contain;
     margin: 50px 30px 50px 30px;
     display: inline-block;
+    border-radius: 50%;
 }
