@@ -17,9 +17,11 @@ $(function() {
         }
 
         return [
-            createLevel('Lena', 3, 'rgb(48, 24, 101)', 'img/lena.jpg', 'img/ln.png', 'music/lena.mp3'),
-            createLevel('Alice', 4, 'rgb(223, 82, 33)', 'img/alice.jpg', 'img/al.png', 'music/alice.mp3'),
-            createLevel('Miku', 5, 'rgb(84, 216, 166)', 'img/miku.jpg', 'img/mi.png', 'music/miku.mp3')
+            createLevel('Ульяна', 3, 'rgb(186, 44, 43)', 'img/ulyana.jpg', 'img/ul.png', 'music/ulyana.mp3'),
+            createLevel('Лена', 3, 'rgb(48, 24, 101)', 'img/lena.jpg', 'img/ln.png', 'music/lena.mp3'),
+            createLevel('Алиса', 4, 'rgb(223, 82, 33)', 'img/alice.jpg', 'img/al.png', 'music/alice.mp3'),
+            createLevel('Славя', 4, 'rgb(254, 193, 97)', 'img/slavya.jpg', 'img/sl.png', 'music/slavya.mp3'),
+            createLevel('Мику', 5, 'rgb(84, 216, 166)', 'img/miku.jpg', 'img/mi.png', 'music/miku.mp3')
         ];
     })();
 
@@ -142,14 +144,15 @@ $(function() {
         var p = {};
 
         p.file = defaultFile;
+        p.currentTime = 0;
         p.isMusicPlay = false;
 
         p.play = function() {
             var playMusic = function() {
-                $('audio')[0].pause();
-                $('audio').attr('currentTime', 0);
+                $('audio').attr('src', p.file);
+                $('audio')[0].currentTime = p.currentTime;
 
-                var promise = $('audio').attr('src', p.file)[0].play();
+                var promise = $('audio')[0].play();
         
                 if (promise !== undefined) {
                     promise.then(_ => {
@@ -169,8 +172,8 @@ $(function() {
         }
 
         p.stop = function() {
+            p.currentTime = $('audio')[0].currentTime;
             $('audio')[0].pause();
-            $('audio').attr('currentTime', 0);
 
             $('#audioControl').off('click');
             $('#audioControl').one('click', player.play);
@@ -186,6 +189,7 @@ $(function() {
                 return;
 
             p.file = newFile;
+            p.currentTime = 0;
 
             if(p.isMusicPlay) {
                 p.play();
@@ -195,7 +199,7 @@ $(function() {
         return p;
     })();
 
-    $(document).attr('title', 'EverlastingSummer Spotty');
+    $(document).attr('title', 'Бесконечное лето - Пятнашки');
     $('#audioControl').one('click', player.play);
 
     var currentLevel;
@@ -232,8 +236,18 @@ $(function() {
         $(this).addClass('active').css('box-shadow', '0 0 6px 6px ' + currentLevel.shadowColor)
             .off('mouseleave');
 
+        $('#tip').css('background-image', 'url(' + currentLevel.imgPath + ')')
+            .css('box-shadow', '0 0 6px 6px ' + currentLevel.shadowColor);
+
         restart(currentLevel);
     });
+
+    $('#question').off('mouseenter mouseleave');
+        $('#question').hover(function() {
+            $('#tip').fadeTo(300, 1);
+        }, function() {
+            $('#tip').fadeTo(500, 0);
+        });
 
     $('#restart').click(function() {
         restart(currentLevel);

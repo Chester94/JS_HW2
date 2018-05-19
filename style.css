@@ -78,6 +78,32 @@ body {
     background-image: url(img/restart.png)
 }
 
+.question {
+    position: absolute;
+    top: 225px;
+    left: calc(100% - 100px);
+    width: 75px;
+    height: 75px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    background-image: url(img/question.png)
+}
+
+.tip {
+    position: absolute;
+    top: 200px;
+    left: calc(100% - 375px);
+    z-index: 1000;
+    width: 250px;
+    height: 250px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    opacity: 0;
+    background-image: none;
+}
+
 .levelBtn {
     width: 100px;
     height: 100px;
