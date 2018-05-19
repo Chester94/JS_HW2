@@ -9,11 +9,16 @@ body {
     vertical-align: top;
 }
 
+.levels { 
+    margin: 0px auto 0px auto;
+    text-align: center
+}
+
 .spotty { 
-    margin: 150px auto auto auto;
+    margin: auto auto auto auto;
     font-size: 0;
     display: inline-block;
-    border: 2px solid rgba(0, 0, 0, 0.7);
+    /* border: 2px solid rgba(0, 0, 0, 0.7); */
     text-align: center
 }
 
@@ -32,4 +37,53 @@ body {
 
 .cell.inactive { 
     background-color: rgba(255, 255, 255, 1);
+}
+
+.btn {
+    transition: transform 0.2s ease-out;
+}
+
+.btn:hover {
+    transform: scale(1.15, 1.15);
+}
+
+.audioControl {
+    position: absolute;
+    top: 25px;
+    left: calc(100% - 100px);
+    width: 75px;
+    height: 75px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+}
+
+.audioControl.inactive {
+    background-image: url(img/musicOn.png)
+}
+
+.audioControl.active {
+    background-image: url(img/musicOff.png)
+}
+
+.restart {
+    position: absolute;
+    top: 125px;
+    left: calc(100% - 100px);
+    width: 75px;
+    height: 75px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    background-image: url(img/restart.png)
+}
+
+.levelBtn {
+    width: 100px;
+    height: 100px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    margin: 50px 30px 50px 30px;
+    display: inline-block;
 }
