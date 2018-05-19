@@ -118,3 +118,24 @@ body {
 .levelBtn.active {
     transform: scale(1.25, 1.25);
 }
+
+.achivment {
+    position: absolute;
+    top: calc(100% - 82px);
+    left: calc(50% - 150px);
+    z-index: 1000;
+    width: 300px;
+    height: 52px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    background-image: none;
+    display: inline-block;
+    opacity: 0;
+}
+
+.achivment.show {
+    left: calc(100% - 330px);
+    opacity: 1;
+    transition: left 2s ease-in-out, top 0.5s ease-in-out, opacity 1s ease-in-out;
+}

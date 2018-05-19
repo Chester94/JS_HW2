@@ -4,24 +4,27 @@ $(function() {
     }
 
     var levels = (function() {
-        var createLevel = function(name, difficult, shadowColor, imgPath, btnPath, musicFile) {
+        var createLevel = function(code, name, difficult, shadowColor, imgPath, btnPath, achFile, musicFile) {
             var level = {};
+            level.code = code;
             level.name = name;
             level.difficult = difficult;
             level.shadowColor = shadowColor;
             level.imgPath = imgPath;
             level.btnPath = btnPath;
+            level.achFile = achFile;
             level.musicFile = musicFile;
+            level.isComplete = false;
 
             return level;
         }
 
         return [
-            createLevel('Ульяна', 3, 'rgb(186, 44, 43)', 'img/ulyana.jpg', 'img/ul.png', 'music/ulyana.mp3'),
-            createLevel('Лена', 3, 'rgb(48, 24, 101)', 'img/lena.jpg', 'img/ln.png', 'music/lena.mp3'),
-            createLevel('Алиса', 4, 'rgb(223, 82, 33)', 'img/alice.jpg', 'img/al.png', 'music/alice.mp3'),
-            createLevel('Славя', 4, 'rgb(254, 193, 97)', 'img/slavya.jpg', 'img/sl.png', 'music/slavya.mp3'),
-            createLevel('Мику', 5, 'rgb(84, 216, 166)', 'img/miku.jpg', 'img/mi.png', 'music/miku.mp3')
+            createLevel('Miku', 'Мику', 3, 'rgb(84, 216, 166)', 'img/miku.jpg', 'img/mi.png', 'img/miku_ach.png', 'music/miku.mp3'),
+            createLevel('Lena', 'Лена', 3, 'rgb(48, 24, 101)', 'img/lena.jpg', 'img/ln.png', 'img/lena_ach.png', 'music/lena.mp3'),
+            createLevel('Alice', 'Алиса', 4, 'rgb(223, 82, 33)', 'img/alice.jpg', 'img/al.png', 'img/alice_ach.png', 'music/alice.mp3'),
+            createLevel('Slavya', 'Славя', 4, 'rgb(254, 193, 97)', 'img/slavya.jpg', 'img/sl.png', 'img/slavya_ach.png', 'music/slavya.mp3'),
+            createLevel('Ulyana', 'Ульяна', 5, 'rgb(186, 44, 43)', 'img/ulyana.jpg', 'img/ul.png', 'img/ulyana_ach.png', 'music/ulyana.mp3')
         ];
     })();
 
@@ -79,7 +82,7 @@ $(function() {
             }
 
             model.mix = function() {
-                for(var i = 0; i < 100; i++) {
+                for(var i = 0; i < 1000; i++) {
                     this.swap(getRandomInt(0, difficult*difficult));
                 }
             }
@@ -96,6 +99,7 @@ $(function() {
 
         v.create = function(model, level) {
             var pxByCell = imageSize / level.difficult;
+            var isWin = model.isWin();
 
             var spotty = $('div.spotty');
             spotty.empty();
@@ -111,14 +115,14 @@ $(function() {
                     .width(pxByCell)
                     .height(pxByCell)
                     .attr('data-number', index)
-                    .addClass('cell ' + (model.isSwapAvalible(index) && !model.isWin() ? 'active' : 'inactive'))
-                    .css('background-image', (!cell.isEmpty || model.isWin() ? 'url(' + level.imgPath + ')' : 'none'))
+                    .addClass('cell ' + (model.isSwapAvalible(index) && !isWin ? 'active' : 'inactive'))
+                    .css('background-image', (!cell.isEmpty || isWin ? 'url(' + level.imgPath + ')' : 'none'))
                     .css('background-position', -pxByCell * cell.column + 'px ' + -pxByCell * cell.row + 'px');
                 
                 newDivLine.append(newCell);
             })
 
-            spotty.css('box-shadow', model.isWin() ? '0 0 6px 6px ' + level.shadowColor : 'none');
+            spotty.css('box-shadow', isWin ? '0 0 6px 6px ' + level.shadowColor : 'none');
 
             $('div.cell.active').hover(function() {
                 $(this).css('box-shadow', '0 0 6px 6px ' + level.shadowColor)
@@ -134,6 +138,18 @@ $(function() {
                     v.create(model, level);
                 }
             })
+
+            if(isWin && !level.isComplete) {
+                level.isComplete = true;
+                $('#achivmentAudio')[0].play();
+                var achivmentSelectorId = '#achivment' + level.code;
+                $('div.achivment.show').each(function() {
+                    var currentTop = $(this).offset().top;
+                    $(this).offset({top: currentTop - 62});
+                });
+                $(achivmentSelectorId).removeClass('show');
+                $(achivmentSelectorId).addClass('show');
+            }
         }
 
         return v;
@@ -149,10 +165,10 @@ $(function() {
 
         p.play = function() {
             var playMusic = function() {
-                $('audio').attr('src', p.file);
-                $('audio')[0].currentTime = p.currentTime;
+                $('#backgroundMusic').attr('src', p.file);
+                $('#backgroundMusic')[0].currentTime = p.currentTime;
 
-                var promise = $('audio')[0].play();
+                var promise = $('#backgroundMusic')[0].play();
         
                 if (promise !== undefined) {
                     promise.then(_ => {
@@ -172,8 +188,8 @@ $(function() {
         }
 
         p.stop = function() {
-            p.currentTime = $('audio')[0].currentTime;
-            $('audio')[0].pause();
+            p.currentTime = $('#backgroundMusic')[0].currentTime;
+            $('#backgroundMusic')[0].pause();
 
             $('#audioControl').off('click');
             $('#audioControl').one('click', player.play);
@@ -218,6 +234,12 @@ $(function() {
         })
 
         $divLevels.append($btn);
+
+        var $achivment = $('<div />')
+                            .attr('id', 'achivment' + level.code)
+                            .css('background-image', 'url(' + level.achFile + ')')
+                            .addClass('achivment');
+        $('body').append($achivment);
     });
 
     $('div.levelBtn').click(function() {
