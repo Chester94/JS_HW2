@@ -115,7 +115,8 @@ $(function() {
                     .width(pxByCell)
                     .height(pxByCell)
                     .attr('data-number', index)
-                    .addClass('cell ' + (model.isSwapAvalible(index) && !isWin ? 'active' : 'inactive'))
+                    .addClass('cell' + (model.isSwapAvalible(index) && !isWin ? ' active' : ''))
+                    .addClass('cell' + (cell.isEmpty && !isWin ? ' empty' : ''))
                     .css('background-image', (!cell.isEmpty || isWin ? 'url(' + level.imgPath + ')' : 'none'))
                     .css('background-position', -pxByCell * cell.column + 'px ' + -pxByCell * cell.row + 'px');
                 
@@ -219,6 +220,10 @@ $(function() {
 
     $(document).attr('title', 'Бесконечное лето - Пятнашки');
     $('#audioControl').one('click', player.play);
+
+    /**
+     * Кнопка автосборки по умолчанию невидима
+     */
     $('#complete').hide();
 
     var currentLevel;
@@ -238,6 +243,9 @@ $(function() {
 
         $divLevels.append($btn);
 
+        /**
+         * Добавление div для ачивок
+         */
         var $achivment = $('<div />')
                             .attr('id', 'achivment' + level.code)
                             .css('background-image', 'url(' + level.achFile + ')')
@@ -245,6 +253,14 @@ $(function() {
         $('body').append($achivment);
     });
 
+    /**
+     * Навешиваем обработчик нажатия на все кнопки уровней.
+     * 
+     * В обработчике устанавливаем текущий уровень,
+     * если новый уровень равен текущему, то ничего не произойдет.
+     * 
+     * Обновляем div-подсказку
+     */
     $('div.levelBtn').click(function() {
         var levelIndex = parseInt($(this).attr('level-index'));
 
@@ -253,11 +269,23 @@ $(function() {
         
         currentLevel = levels[levelIndex];
 
+        /**
+         * Допольнительная обработка mouseleave для кнопок нужна.
+         * Ниже написано, что на активной кнопке не убираем тень (отключена mouseleave),
+         * а это значит, что этот обработчик нужно каждый раз возвращать,
+         * иначе кнопки остаются посвеченными.
+         * Сначала отключаем ВСЕМ mouseleave (иначе обработчики накапливаются)
+         */
         $('div.levelBtn').removeClass('active').css('box-shadow', 'none')
+            .off('mouseleave')
             .on('mouseleave', function() {
-                $(this).css('box-shadow', 'none')
+                $(this).css('box-shadow', 'none');
             });
             
+        /**
+         * Кнопке активного уровня включаем тень и увеличение размера
+         * Убираем mouseleave. Кнопка должна оставаться большой.
+         */
         $(this).addClass('active').css('box-shadow', '0 0 6px 6px ' + currentLevel.shadowColor)
             .off('mouseleave');
 
@@ -267,22 +295,42 @@ $(function() {
         restart(currentLevel);
     });
 
-    $('#question').off('mouseenter mouseleave');
-        $('#question').hover(function() {
-            $('#tip').fadeTo(300, 1);
-        }, function() {
-            $('#tip').fadeTo(500, 0);
-        });
+    /**
+     * Обработчика наведения для подсказки.
+     * При наведении на "кнопку" вопроса div-подсказка постепенно становится видимым
+     * Если увести мышь - постепенно скрывается
+     */
+    $('#question').hover(function() {
+        $('#tip').fadeTo(300, 1);
+    }, function() {
+        $('#tip').fadeTo(500, 0);
+    });
 
+
+    /**
+     * Обработчик для кнопки рестарта
+     * Перезапускат уровень
+     */
     $('#restart').click(function() {
         restart(currentLevel);
     })
 
+    /**
+     * Обработчик для кнопки "собрать"
+     * Если уровень завершен, то пересоздает модель по текущему уровню, но не перемешивает
+     */
     $('#complete').click(function() {
         if(currentLevel.isComplete)
             complete(currentLevel);
     })
 
+    /**
+     * Если уровень не задан, то ничего не происходит
+     * Меняет заголовок страницы
+     * Пробует сменить музыкальную композицию
+     * Пересоздает модель, перемешивает, отображает
+     * @param {Уровень для отображения} level 
+     */
     var restart = function(level) {
         if(level === undefined)
             return;
@@ -296,10 +344,14 @@ $(function() {
         view.create(model, level);
     }
 
+    /**
+     * Пересоздает и отображает модель, но не перемешивает
+     * @param {Уровень для отображения} level 
+     */
     var complete = function(level) {
         if(level === undefined)
             return;
-            
+
         var model = modlelFactory.createModel(level.difficult);
         view.create(model, level);
     }
