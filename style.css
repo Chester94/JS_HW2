@@ -51,6 +51,16 @@ body {
     transform: scale(1.15, 1.15);
 }
 
+.control {
+    position: absolute;
+    left: calc(100% - 100px);
+    width: 75px;
+    height: 75px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+}
+
 .audioControl {
     position: absolute;
     top: 25px;
@@ -71,38 +81,17 @@ body {
 }
 
 .restart {
-    position: absolute;
     top: 125px;
-    left: calc(100% - 100px);
-    width: 75px;
-    height: 75px;
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: contain;
     background-image: url(img/restart.png)
 }
 
 .question {
-    position: absolute;
     top: 225px;
-    left: calc(100% - 100px);
-    width: 75px;
-    height: 75px;
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: contain;
     background-image: url(img/question.png)
 }
 
 .complete {
-    position: absolute;
     top: 325px;
-    left: calc(100% - 100px);
-    width: 75px;
-    height: 75px;
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: contain;
     background-image: url(img/complete.png);
 }
 
@@ -137,7 +126,7 @@ body {
 
 .achivment {
     position: absolute;
-    top: calc(100% - 82px);
+    top: calc(100% - 77px);
     left: calc(50% - 150px);
     z-index: 1000;
     width: 300px;
@@ -151,7 +140,7 @@ body {
 }
 
 .achivment.show {
-    left: calc(100% - 330px);
+    left: calc(100% - 325px);
     opacity: 1;
     transition: left 2s ease-in-out, top 0.5s ease-in-out, opacity 1s ease-in-out;
 }
