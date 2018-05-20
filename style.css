@@ -66,6 +66,10 @@ body {
     background-image: url(img/restartGame.png)
 }
 
+.restartGame:hover {
+    background-image: url(img/restartGameHover.png)
+}
+
 .audioControl {
     position: absolute;
     top: 125px;
