@@ -155,6 +155,12 @@ $(function() {
             $('#complete').toggle(currentLevel.isComplete)
         }
 
+        v.clean = function() {
+            var spotty = $('div.spotty');
+            spotty.empty();
+            spotty.css('box-shadow', 'none');
+        }
+
         return v;
     })();
 
@@ -218,82 +224,21 @@ $(function() {
         return p;
     })();
 
-    $(document).attr('title', 'Бесконечное лето - Пятнашки');
+    var currentLevel;
+
+    $('#restartGame').click(function() {
+        restartGame();
+    });
+
     $('#audioControl').one('click', player.play);
 
     /**
-     * Кнопка автосборки по умолчанию невидима
+     * Обработчик для кнопки рестарта
+     * Перезапускат уровень
      */
-    $('#complete').hide();
-
-    var currentLevel;
-
-    var $divLevels = $('div.levels');
-    levels.forEach(function(level, index) {
-        var $btn = $('<div />')
-                    .addClass('btn levelBtn')
-                    .css('background-image', 'url(' + level.btnPath + ')')
-                    .attr('level-index', index);
-
-        $btn.hover(function() {
-            $(this).css('box-shadow', '0 0 6px 6px ' + level.shadowColor)
-        }, function() {
-            $(this).css('box-shadow', 'none')
-        })
-
-        $divLevels.append($btn);
-
-        /**
-         * Добавление div для ачивок
-         */
-        var $achivment = $('<div />')
-                            .attr('id', 'achivment' + level.code)
-                            .css('background-image', 'url(' + level.achFile + ')')
-                            .addClass('achivment');
-        $('body').append($achivment);
-    });
-
-    /**
-     * Навешиваем обработчик нажатия на все кнопки уровней.
-     * 
-     * В обработчике устанавливаем текущий уровень,
-     * если новый уровень равен текущему, то ничего не произойдет.
-     * 
-     * Обновляем div-подсказку
-     */
-    $('div.levelBtn').click(function() {
-        var levelIndex = parseInt($(this).attr('level-index'));
-
-        if(currentLevel === levels[levelIndex])
-            return;
-        
-        currentLevel = levels[levelIndex];
-
-        /**
-         * Допольнительная обработка mouseleave для кнопок нужна.
-         * Ниже написано, что на активной кнопке не убираем тень (отключена mouseleave),
-         * а это значит, что этот обработчик нужно каждый раз возвращать,
-         * иначе кнопки остаются посвеченными.
-         * Сначала отключаем ВСЕМ mouseleave (иначе обработчики накапливаются)
-         */
-        $('div.levelBtn').removeClass('active').css('box-shadow', 'none')
-            .off('mouseleave')
-            .on('mouseleave', function() {
-                $(this).css('box-shadow', 'none');
-            });
-            
-        /**
-         * Кнопке активного уровня включаем тень и увеличение размера
-         * Убираем mouseleave. Кнопка должна оставаться большой.
-         */
-        $(this).addClass('active').css('box-shadow', '0 0 6px 6px ' + currentLevel.shadowColor)
-            .off('mouseleave');
-
-        $('#tip').css('background-image', 'url(' + currentLevel.imgPath + ')')
-            .css('box-shadow', '0 0 6px 6px ' + currentLevel.shadowColor);
-
+    $('#restart').click(function() {
         restart(currentLevel);
-    });
+    })
 
     /**
      * Обработчика наведения для подсказки.
@@ -305,15 +250,6 @@ $(function() {
     }, function() {
         $('#tip').fadeTo(500, 0);
     });
-
-
-    /**
-     * Обработчик для кнопки рестарта
-     * Перезапускат уровень
-     */
-    $('#restart').click(function() {
-        restart(currentLevel);
-    })
 
     /**
      * Обработчик для кнопки "собрать"
@@ -355,4 +291,104 @@ $(function() {
         var model = modlelFactory.createModel(level.difficult);
         view.create(model, level);
     }
+
+    var restartGame = function() {
+        currentLevel = undefined;
+        player.change(undefined);
+        view.clean();
+
+        levels.forEach(function(level) {
+            level.isComplete = false;
+        })
+
+        $(document).attr('title', 'Бесконечное лето - Пятнашки');
+
+        $('#complete').hide();
+
+        $('#tip').css('background-image', 'none')
+                .css('box-shadow', 'none');
+
+        createButtons();
+        createAchivment();
+        createOnClickForButtons();
+    }
+
+    var createButtons = function() {
+        $('.levelBtn').remove();
+
+        var $divLevels = $('div.levels');
+        levels.forEach(function(level, index) {
+            var $btn = $('<div />')
+                        .addClass('btn levelBtn')
+                        .css('background-image', 'url(' + level.btnPath + ')')
+                        .attr('level-index', index);
+    
+            $btn.hover(function() {
+                $(this).css('box-shadow', '0 0 6px 6px ' + level.shadowColor)
+            }, function() {
+                $(this).css('box-shadow', 'none')
+            })
+    
+            $divLevels.append($btn);            
+        });
+    }
+
+    var createAchivment = function() {
+        $('.achivment').remove();
+
+        levels.forEach(function(level) {
+            var $achivment = $('<div />')
+            .attr('id', 'achivment' + level.code)
+            .css('background-image', 'url(' + level.achFile + ')')
+            .addClass('achivment');
+            
+            $('body').append($achivment);
+        });
+    }
+
+    /**
+     * Навешиваем обработчик нажатия на все кнопки уровней.
+     * 
+     * В обработчике устанавливаем текущий уровень,
+     * если новый уровень равен текущему, то ничего не произойдет.
+     * 
+     * Обновляем div-подсказку
+     */
+    var createOnClickForButtons = function() {
+        $('div.levelBtn').click(function() {
+            var levelIndex = parseInt($(this).attr('level-index'));
+
+            if(currentLevel === levels[levelIndex])
+                return;
+            
+            currentLevel = levels[levelIndex];
+
+            /**
+             * Допольнительная обработка mouseleave для кнопок нужна.
+             * Ниже написано, что на активной кнопке не убираем тень (отключена mouseleave),
+             * а это значит, что этот обработчик нужно каждый раз возвращать,
+             * иначе кнопки остаются посвеченными.
+             * Сначала отключаем ВСЕМ mouseleave (иначе обработчики накапливаются)
+             */
+            $('div.levelBtn').removeClass('active').css('box-shadow', 'none')
+                .off('mouseleave')
+                .on('mouseleave', function() {
+                    $(this).css('box-shadow', 'none');
+                });
+                
+            /**
+             * Кнопке активного уровня включаем тень и увеличение размера
+             * Убираем mouseleave. Кнопка должна оставаться большой.
+             */
+            $(this).addClass('active').css('box-shadow', '0 0 6px 6px ' + currentLevel.shadowColor)
+                .off('mouseleave');
+
+            $('#tip').css('background-image', 'url(' + currentLevel.imgPath + ')')
+                .css('box-shadow', '0 0 6px 6px ' + currentLevel.shadowColor);
+
+            restart(currentLevel);
+        });
+    }
+
+    restartGame();
 });

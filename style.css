@@ -61,9 +61,14 @@ body {
     background-size: contain;
 }
 
+.restartGame {
+    top: 25px;
+    background-image: url(img/restartGame.png)
+}
+
 .audioControl {
     position: absolute;
-    top: 25px;
+    top: 125px;
     left: calc(100% - 100px);
     width: 75px;
     height: 75px;
@@ -81,17 +86,17 @@ body {
 }
 
 .restart {
-    top: 125px;
+    top: 225px;
     background-image: url(img/restart.png)
 }
 
 .question {
-    top: 225px;
+    top: 325px;
     background-image: url(img/question.png)
 }
 
 .complete {
-    top: 325px;
+    top: 425px;
     background-image: url(img/complete.png);
 }
 
