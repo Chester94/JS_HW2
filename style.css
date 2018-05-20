@@ -94,6 +94,18 @@ body {
     background-image: url(img/question.png)
 }
 
+.complete {
+    position: absolute;
+    top: 325px;
+    left: calc(100% - 100px);
+    width: 75px;
+    height: 75px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    background-image: url(img/complete.png);
+}
+
 .tip {
     position: absolute;
     top: 200px;

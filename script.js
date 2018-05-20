@@ -150,6 +150,8 @@ $(function() {
                 $(achivmentSelectorId).removeClass('show');
                 $(achivmentSelectorId).addClass('show');
             }
+
+            $('#complete').toggle(currentLevel.isComplete)
         }
 
         return v;
@@ -217,6 +219,7 @@ $(function() {
 
     $(document).attr('title', 'Бесконечное лето - Пятнашки');
     $('#audioControl').one('click', player.play);
+    $('#complete').hide();
 
     var currentLevel;
 
@@ -275,6 +278,11 @@ $(function() {
         restart(currentLevel);
     })
 
+    $('#complete').click(function() {
+        if(currentLevel.isComplete)
+            complete(currentLevel);
+    })
+
     var restart = function(level) {
         if(level === undefined)
             return;
@@ -285,6 +293,14 @@ $(function() {
 
         var model = modlelFactory.createModel(level.difficult);
         model.mix();
+        view.create(model, level);
+    }
+
+    var complete = function(level) {
+        if(level === undefined)
+            return;
+            
+        var model = modlelFactory.createModel(level.difficult);
         view.create(model, level);
     }
 });
