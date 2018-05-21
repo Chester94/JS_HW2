@@ -86,6 +86,26 @@ $(function() {
                     this.swap(getRandomInt(0, difficult*difficult));
                 }
             }
+			
+			model.move = function(keyCode) {
+				switch(keyCode) {
+					case 37:
+						this.swap(model.emptyCellIndex + 1);
+						break;
+						
+					case 38:
+						this.swap(model.emptyCellIndex + difficult);
+						break;
+						
+					case 39:
+						this.swap(model.emptyCellIndex - 1);
+						break;
+						
+					case 40:
+						this.swap(model.emptyCellIndex - difficult);
+						break;
+				}
+			}
 
             return model;
         }
@@ -225,6 +245,7 @@ $(function() {
     })();
 
     var currentLevel;
+	var model;
 
     $('#restartGame').click(function() {
         restartGame();
@@ -275,7 +296,7 @@ $(function() {
 
         player.change(level.musicFile);
 
-        var model = modlelFactory.createModel(level.difficult);
+        model = modlelFactory.createModel(level.difficult);
         model.mix();
         view.create(model, level);
     }
@@ -389,6 +410,14 @@ $(function() {
             restart(currentLevel);
         });
     }
+	
+	$(document).keydown(function(e) {
+		if(currentLevel === undefined || model === undefined)
+			return;
+		
+		model.move(e.keyCode);
+		view.create(model, currentLevel);
+	})
 
     restartGame();
 });
