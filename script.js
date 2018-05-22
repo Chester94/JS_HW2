@@ -15,6 +15,21 @@ $(function() {
             level.achFile = achFile;
             level.musicFile = musicFile;
             level.isComplete = false;
+			
+			level.complete = function() {
+				if(this.isComplete)
+					return;
+				
+				this.isComplete = true;
+                $('#achivmentAudio')[0].play();
+                var achivmentSelectorId = '#achivment' + this.code;
+                $('div.achivment.show').each(function() {
+                    var currentTop = $(this).offset().top;
+                    $(this).offset({top: currentTop - 62});
+                });
+                $(achivmentSelectorId).removeClass('show');
+                $(achivmentSelectorId).addClass('show');
+			}
 
             return level;
         }
@@ -48,7 +63,7 @@ $(function() {
                 var isWin = true;
 
                 this.forEach(function(cell, index, array) {
-                    if(index > 0 && cell.number <= array[index - 1].number) {
+                    if(cell.number !== index) {
                         isWin = false;
                         return false;
                     }
@@ -164,15 +179,7 @@ $(function() {
             })
 
             if(isWin && !level.isComplete) {
-                level.isComplete = true;
-                $('#achivmentAudio')[0].play();
-                var achivmentSelectorId = '#achivment' + level.code;
-                $('div.achivment.show').each(function() {
-                    var currentTop = $(this).offset().top;
-                    $(this).offset({top: currentTop - 62});
-                });
-                $(achivmentSelectorId).removeClass('show');
-                $(achivmentSelectorId).addClass('show');
+                level.complete();
             }
 
             $('#complete').toggle(currentLevel.isComplete)
@@ -268,7 +275,7 @@ $(function() {
      * Перезапускат уровень
      */
     $('#restart').click(function() {
-        restart(currentLevel);
+        restarCurrentLevel();
     })
 
     /**
@@ -291,7 +298,7 @@ $(function() {
      * Если уровень не задан, то ничего не происходит
      * Меняет заголовок страницы
      * Пробует сменить музыкальную композицию
-     * Пересоздает модель, перемешивает, отображает
+     * Пересоздает модель, перемешивает (если уровень не пройден), отображает
      * @param {Уровень для отображения} level 
      */
     var restart = function(level) {
@@ -303,9 +310,16 @@ $(function() {
         player.change(level.musicFile);
 
         model = modlelFactory.createModel(level.difficult);
-        model.mix();
+		if(!level.isComplete)
+			model.mix();
         view.create(model, level);
     }
+	
+	var restarCurrentLevel = function() {
+		model = modlelFactory.createModel(currentLevel.difficult);
+        model.mix();
+        view.create(model, currentLevel);
+	}
 
     /**
      * Пересоздает и отображает модель, но не перемешивает
@@ -433,13 +447,30 @@ $(function() {
 		switch(e.keyCode) {
 			case 72: //H - help
 				hideTip();
+				break;
 		}
 	})
-	
+	var last6 = '';
 	$(document).keydown(function(e) {
+		last6 += '' + String.fromCharCode(e.keyCode);
+		while(last6.length > 3)
+			last6 = last6.substr(1);
+		
+		if(last6 === 'QQQ')
+			levels[0].complete();
+		if(last6 === 'WWW')
+			levels[1].complete();
+		if(last6 === 'EEE')
+			levels[2].complete();
+		if(last6 === 'RRR')
+			levels[3].complete();
+		if(last6 === 'TTT')
+			levels[4].complete();
+		
 		switch(e.keyCode) {
 			case 72: //H - help
 				showTip();
+				break;
 		}
 	})
 
