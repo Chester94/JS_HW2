@@ -267,10 +267,12 @@ $(function() {
     $('#audio-control').one('click', player.play);
 	
 	var showTip = function() {
-		$('#tip').addClass('active');
+        $('#tip').addClass('active');
+        $('#question').one('click', hideTip);
 	}
 	var hideTip = function() {
         $('#tip').removeClass('active');
+        $('#question').one('click', showTip);
     }
 
     /**
@@ -286,7 +288,7 @@ $(function() {
      * При наведении на "кнопку" вопроса div-подсказка постепенно становится видимым
      * Если увести мышь - постепенно скрывается
      */
-    $('#question').hover(showTip, hideTip);
+    $('#question').one('click', showTip);
 
     /**
      * Обработчик для кнопки "собрать"
@@ -446,8 +448,8 @@ $(function() {
         }
             
         if(e.keyCode >= 37 && e.keyCode <= 40) {
-            if(currentLevel === undefined || model === undefined)
-			    return;		
+            if(currentLevel === undefined || currentLevel.isComplete || model === undefined)
+                return;
 		
             model.move(e.keyCode);
             view.create(model, currentLevel);
@@ -471,7 +473,7 @@ $(function() {
 		
 		switch(e.keyCode) {
 			case 72: //H - help
-				hideTip();
+				$('#question').trigger('click');
                 break;
             case 27: //Esc
 				showMainMenu();
@@ -487,14 +489,6 @@ $(function() {
                 break;
 		}
     })
-	
-	$(document).keydown(function(e) {
-		switch(e.keyCode) {
-			case 72: //H - help
-				showTip();
-				break;
-		}
-	})
 
     restartGame();
 });
