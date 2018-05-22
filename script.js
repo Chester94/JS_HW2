@@ -412,8 +412,10 @@ $(function() {
     }
 	
 	$(document).keydown(function(e) {
+		$('.levelBtn[level-index=' + (e.keyCode - 49) + ']').trigger('click');
+		
 		if(currentLevel === undefined || model === undefined)
-			return;
+			return;		
 		
 		model.move(e.keyCode);
 		view.create(model, currentLevel);
