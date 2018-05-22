@@ -116,6 +116,12 @@ body {
     background-size: contain;
     opacity: 0;
     background-image: none;
+	transition: opacity 0.5s ease-in-out;
+}
+
+.tip.active {
+	opacity: 1;
+	transition: opacity 0.3s ease-in-out
 }
 
 .levelBtn {

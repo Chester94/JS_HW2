@@ -69,6 +69,9 @@ $(function() {
             }
 
             model.isSwapAvalible = function(targetCellIndex) {
+				if(targetCellIndex < 0 || targetCellIndex >= difficult*difficult)
+					return;
+				
                 var targetCellRow = Math.floor(targetCellIndex / difficult);
                 var targetCellColumn = targetCellIndex % difficult;
 
@@ -252,6 +255,13 @@ $(function() {
     });
 
     $('#audioControl').one('click', player.play);
+	
+	var showTip = function() {
+		$('#tip').addClass('active');
+	}
+	var hideTip = function() {
+        $('#tip').removeClass('active');
+    }
 
     /**
      * Обработчик для кнопки рестарта
@@ -266,11 +276,7 @@ $(function() {
      * При наведении на "кнопку" вопроса div-подсказка постепенно становится видимым
      * Если увести мышь - постепенно скрывается
      */
-    $('#question').hover(function() {
-        $('#tip').fadeTo(300, 1);
-    }, function() {
-        $('#tip').fadeTo(500, 0);
-    });
+    $('#question').hover(showTip, hideTip);
 
     /**
      * Обработчик для кнопки "собрать"
@@ -411,14 +417,30 @@ $(function() {
         });
     }
 	
-	$(document).keydown(function(e) {
-		$('.levelBtn[level-index=' + (e.keyCode - 49) + ']').trigger('click');
+	$(document).keyup(function(e) {
+		console.log(e.keyCode)
+		if(e.keyCode >= 49 && e.keyCode <= 57)
+			$('.levelBtn[level-index=' + (e.keyCode - 49) + ']').trigger('click');
+		if(e.keyCode >= 97 && e.keyCode <= 105)
+			$('.levelBtn[level-index=' + (e.keyCode - 97) + ']').trigger('click');
 		
 		if(currentLevel === undefined || model === undefined)
 			return;		
 		
 		model.move(e.keyCode);
 		view.create(model, currentLevel);
+		
+		switch(e.keyCode) {
+			case 72: //H - help
+				hideTip();
+		}
+	})
+	
+	$(document).keydown(function(e) {
+		switch(e.keyCode) {
+			case 72: //H - help
+				showTip();
+		}
 	})
 
     restartGame();
