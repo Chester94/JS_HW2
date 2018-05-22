@@ -1,10 +1,12 @@
 $(function() {  
+    const maxCheatLength = 8
+
     var getRandomInt = function(min, max) {
         return Math.floor(Math.random() * (max - min)) + min;
     }
 
     var levels = (function() {
-        var createLevel = function(code, name, difficult, shadowColor, imgPath, btnPath, achFile, musicFile) {
+        var createLevel = function(code, name, difficult, shadowColor, imgPath, btnPath, achFile, musicFile, cheat) {
             var level = {};
             level.code = code;
             level.name = name;
@@ -14,6 +16,7 @@ $(function() {
             level.btnPath = btnPath;
             level.achFile = achFile;
             level.musicFile = musicFile;
+            level.cheat = cheat.substring(0, maxCheatLength).toUpperCase();
             level.isComplete = false;
 			
 			level.complete = function() {
@@ -21,7 +24,7 @@ $(function() {
 					return;
 				
 				this.isComplete = true;
-                $('#achivmentAudio')[0].play();
+                $('#achivment-audio')[0].play();
                 var achivmentSelectorId = '#achivment' + this.code;
                 $('div.achivment.show').each(function() {
                     var currentTop = $(this).offset().top;
@@ -35,11 +38,11 @@ $(function() {
         }
 
         return [
-            createLevel('Miku', 'Мику', 3, 'rgb(84, 216, 166)', 'img/miku.jpg', 'img/mi.png', 'img/miku_ach.png', 'music/miku.mp3'),
-            createLevel('Lena', 'Лена', 3, 'rgb(48, 24, 101)', 'img/lena.jpg', 'img/ln.png', 'img/lena_ach.png', 'music/lena.mp3'),
-            createLevel('Alice', 'Алиса', 4, 'rgb(223, 82, 33)', 'img/alice.jpg', 'img/al.png', 'img/alice_ach.png', 'music/alice.mp3'),
-            createLevel('Slavya', 'Славя', 4, 'rgb(254, 193, 97)', 'img/slavya.jpg', 'img/sl.png', 'img/slavya_ach.png', 'music/slavya.mp3'),
-            createLevel('Ulyana', 'Ульяна', 5, 'rgb(186, 44, 43)', 'img/ulyana.jpg', 'img/ul.png', 'img/ulyana_ach.png', 'music/ulyana.mp3')
+            createLevel('Miku', 'Мику', 3, 'rgb(84, 216, 166)', 'img/miku.jpg', 'img/mi.png', 'img/miku_ach.png', 'music/miku.mp3', 'AEZAKMI'),
+            createLevel('Lena', 'Лена', 3, 'rgb(48, 24, 101)', 'img/lena.jpg', 'img/ln.png', 'img/lena_ach.png', 'music/lena.mp3', 'BAGUVIX'),
+            createLevel('Alice', 'Алиса', 4, 'rgb(223, 82, 33)', 'img/alice.jpg', 'img/al.png', 'img/alice_ach.png', 'music/alice.mp3', 'YECGAA'),
+            createLevel('Slavya', 'Славя', 4, 'rgb(254, 193, 97)', 'img/slavya.jpg', 'img/sl.png', 'img/slavya_ach.png', 'music/slavya.mp3', 'RIPAZHA'),
+            createLevel('Ulyana', 'Ульяна', 5, 'rgb(186, 44, 43)', 'img/ulyana.jpg', 'img/ul.png', 'img/ulyana_ach.png', 'music/ulyana.mp3', 'JUMPJET')
         ];
     })();
 
@@ -178,11 +181,11 @@ $(function() {
                 }
             })
 
-            if(isWin && !level.isComplete) {
+            if(isWin) {
                 level.complete();
-            }
 
-            $('#complete').toggle(currentLevel.isComplete)
+                $('div.cell').css('border', 'none');
+            }
         }
 
         v.clean = function() {
@@ -204,17 +207,17 @@ $(function() {
 
         p.play = function() {
             var playMusic = function() {
-                $('#backgroundMusic').attr('src', p.file);
-                $('#backgroundMusic')[0].currentTime = p.currentTime;
+                $('#background-music').attr('src', p.file);
+                $('#background-music')[0].currentTime = p.currentTime;
 
-                var promise = $('#backgroundMusic')[0].play();
+                var promise = $('#background-music')[0].play();
         
                 if (promise !== undefined) {
                     promise.then(_ => {
                         // Autoplay started
-                        $('#audioControl').off('click');
-                        $('#audioControl').one('click', player.stop);
-                        $('#audioControl').removeClass('inactive').addClass('active');
+                        $('#audio-control').off('click');
+                        $('#audio-control').one('click', player.stop);
+                        $('#audio-control').removeClass('inactive').addClass('active');
                         p.isMusicPlay = true;
                     }).catch(error => {
                         // Autoplay was prevented.
@@ -227,12 +230,12 @@ $(function() {
         }
 
         p.stop = function() {
-            p.currentTime = $('#backgroundMusic')[0].currentTime;
-            $('#backgroundMusic')[0].pause();
+            p.currentTime = $('#background-music')[0].currentTime;
+            $('#background-music')[0].pause();
 
-            $('#audioControl').off('click');
-            $('#audioControl').one('click', player.play);
-            $('#audioControl').removeClass('active').addClass('inactive');
+            $('#audio-control').off('click');
+            $('#audio-control').one('click', player.play);
+            $('#audio-control').removeClass('active').addClass('inactive');
             p.isMusicPlay = false;
         }
 
@@ -257,11 +260,11 @@ $(function() {
     var currentLevel;
 	var model;
 
-    $('#restartGame').click(function() {
+    $('#restart-game').click(function() {
         restartGame();
     });
 
-    $('#audioControl').one('click', player.play);
+    $('#audio-control').one('click', player.play);
 	
 	var showTip = function() {
 		$('#tip').addClass('active');
@@ -275,7 +278,7 @@ $(function() {
      * Перезапускат уровень
      */
     $('#restart').click(function() {
-        restarCurrentLevel();
+        restartLevel(currentLevel, true);
     })
 
     /**
@@ -289,9 +292,9 @@ $(function() {
      * Обработчик для кнопки "собрать"
      * Если уровень завершен, то пересоздает модель по текущему уровню, но не перемешивает
      */
-    $('#complete').click(function() {
-        if(currentLevel.isComplete)
-            complete(currentLevel);
+    $('#collect').click(function() {
+        if(currentLevel && currentLevel.isComplete)
+            restartLevel(currentLevel, false);
     })
 
     /**
@@ -301,56 +304,57 @@ $(function() {
      * Пересоздает модель, перемешивает (если уровень не пройден), отображает
      * @param {Уровень для отображения} level 
      */
-    var restart = function(level) {
+    var changeLevel = function(level) {
         if(level === undefined)
             return;
+
+        currentLevel = level;
         
         $(document).attr('title', level.name)
 
         player.change(level.musicFile);
 
-        model = modlelFactory.createModel(level.difficult);
-		if(!level.isComplete)
-			model.mix();
-        view.create(model, level);
+        restartLevel(level, !level.isComplete);
     }
-	
-	var restarCurrentLevel = function() {
-		model = modlelFactory.createModel(currentLevel.difficult);
-        model.mix();
-        view.create(model, currentLevel);
-	}
-
-    /**
-     * Пересоздает и отображает модель, но не перемешивает
-     * @param {Уровень для отображения} level 
-     */
-    var complete = function(level) {
+    
+    var restartLevel = function(level, needMix) {
         if(level === undefined)
             return;
 
-        var model = modlelFactory.createModel(level.difficult);
+        if(needMix === undefined)
+            needMix = !level.isComplete;
+
+        $('#collect').toggle(level.isComplete);
+
+        model = modlelFactory.createModel(level.difficult);
+        if(needMix)
+            model.mix();
         view.create(model, level);
     }
 
     var restartGame = function() {
-        currentLevel = undefined;
-        player.change(undefined);
-        view.clean();
+        showMainMenu();
 
         levels.forEach(function(level) {
             level.isComplete = false;
         })
 
+        createAchivment();  
+    }
+
+    var showMainMenu = function() {
+        currentLevel = undefined;
+        player.change(undefined);
+        view.clean();
+
         $(document).attr('title', 'Бесконечное лето - Пятнашки');
 
-        $('#complete').hide();
+        $('#collect').hide();
 
         $('#tip').css('background-image', 'none')
                 .css('box-shadow', 'none');
 
         createButtons();
-        createAchivment();
         createOnClickForButtons();
     }
 
@@ -402,7 +406,7 @@ $(function() {
             if(currentLevel === levels[levelIndex])
                 return;
             
-            currentLevel = levels[levelIndex];
+            changeLevel(levels[levelIndex]);
 
             /**
              * Допольнительная обработка mouseleave для кнопок нужна.
@@ -426,47 +430,65 @@ $(function() {
 
             $('#tip').css('background-image', 'url(' + currentLevel.imgPath + ')')
                 .css('box-shadow', '0 0 6px 6px ' + currentLevel.shadowColor);
-
-            restart(currentLevel);
         });
     }
-	
+    
+    var inputString = '';
 	$(document).keyup(function(e) {
-		console.log(e.keyCode)
-		if(e.keyCode >= 49 && e.keyCode <= 57)
-			$('.levelBtn[level-index=' + (e.keyCode - 49) + ']').trigger('click');
-		if(e.keyCode >= 97 && e.keyCode <= 105)
-			$('.levelBtn[level-index=' + (e.keyCode - 97) + ']').trigger('click');
+		if(e.keyCode >= 49 && e.keyCode <= 57) {
+            $('.levelBtn[level-index=' + (e.keyCode - 49) + ']').trigger('click');
+            return;
+        }
+
+		if(e.keyCode >= 97 && e.keyCode <= 105) {
+            $('.levelBtn[level-index=' + (e.keyCode - 97) + ']').trigger('click');
+            return;
+        }
+            
+        if(e.keyCode >= 37 && e.keyCode <= 40) {
+            if(currentLevel === undefined || model === undefined)
+			    return;		
 		
-		if(currentLevel === undefined || model === undefined)
-			return;		
-		
-		model.move(e.keyCode);
-		view.create(model, currentLevel);
+            model.move(e.keyCode);
+            view.create(model, currentLevel);
+            return;
+        }
+        
+        inputString += '' + String.fromCharCode(e.keyCode);
+		while(inputString.length > maxCheatLength)
+            inputString = inputString.substr(1);
+
+        levels.forEach(function(level) {
+            if(inputString.includes(level.cheat)) {
+                inputString = '';
+                if(!level.isComplete) {
+                    level.complete();
+                    if(level === currentLevel)
+                        restartLevel(currentLevel);
+                }
+            }
+        });
 		
 		switch(e.keyCode) {
 			case 72: //H - help
 				hideTip();
-				break;
+                break;
+            case 27: //Esc
+				showMainMenu();
+                break;
+            case 82: //R - restart current level
+				restartLevel(currentLevel, true);
+                break;
+            case 80: //P - play / pause music
+                $('#audio-control').trigger('click');
+                break;
+            case 67: //C - complete level, if possible
+                $('#collect').trigger('click');
+                break;
 		}
-	})
-	var last6 = '';
+    })
+	
 	$(document).keydown(function(e) {
-		last6 += '' + String.fromCharCode(e.keyCode);
-		while(last6.length > 3)
-			last6 = last6.substr(1);
-		
-		if(last6 === 'QQQ')
-			levels[0].complete();
-		if(last6 === 'WWW')
-			levels[1].complete();
-		if(last6 === 'EEE')
-			levels[2].complete();
-		if(last6 === 'RRR')
-			levels[3].complete();
-		if(last6 === 'TTT')
-			levels[4].complete();
-		
 		switch(e.keyCode) {
 			case 72: //H - help
 				showTip();

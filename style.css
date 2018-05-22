@@ -61,16 +61,16 @@ body {
     background-size: contain;
 }
 
-.restartGame {
+.restart-game {
     top: 25px;
     background-image: url(img/restartGame.png)
 }
 
-.restartGame:hover {
+.restart-game:hover {
     background-image: url(img/restartGameHover.png)
 }
 
-.audioControl {
+.audio-control {
     position: absolute;
     top: 125px;
     left: calc(100% - 100px);
@@ -81,11 +81,11 @@ body {
     background-size: contain;
 }
 
-.audioControl.inactive {
+.audio-control.inactive {
     background-image: url(img/musicOn.png)
 }
 
-.audioControl.active {
+.audio-control.active {
     background-image: url(img/musicOff.png)
 }
 
@@ -99,7 +99,7 @@ body {
     background-image: url(img/question.png)
 }
 
-.complete {
+.collect {
     top: 425px;
     background-image: url(img/complete.png);
 }
@@ -157,5 +157,5 @@ body {
 .achivment.show {
     left: calc(100% - 325px);
     opacity: 1;
-    transition: left 2s ease-in-out, top 0.5s ease-in-out, opacity 1s ease-in-out;
+    transition: left 2s ease-in-out, opacity 1s ease-in-out;
 }
