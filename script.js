@@ -172,15 +172,6 @@ $(function() {
                 $(this).css('box-shadow', 'none')
             })
 
-            $('div.cell.active').click(function() {
-                var targetCellNumber = parseInt($(this).attr('data-number'));
-
-                if(model.isSwapAvalible(targetCellNumber)) {
-                    model.swap(targetCellNumber);
-                    v.create(model, level);
-                }
-            })
-
             if(isWin) {
                 level.complete();
 
@@ -265,6 +256,15 @@ $(function() {
     });
 
     $('#audio-control').one('click', player.play);
+	
+	$('div.spotty').on('click', 'div.cell.active', function() {
+		var targetCellNumber = parseInt($(this).attr('data-number'));
+
+		if(model.isSwapAvalible(targetCellNumber)) {
+			model.swap(targetCellNumber);
+			view.create(model, currentLevel);
+		}
+	})
 	
 	var showTip = function() {
         $('#tip').addClass('active');
