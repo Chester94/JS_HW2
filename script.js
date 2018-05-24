@@ -177,6 +177,8 @@ $(function() {
 
                 $('div.cell').css('border', 'none');
             }
+			
+			$('#collect').toggle(level.isComplete);
         }
 
         v.clean = function() {
@@ -325,8 +327,6 @@ $(function() {
 
         if(needMix === undefined)
             needMix = !level.isComplete;
-
-        $('#collect').toggle(level.isComplete);
 
         model = modlelFactory.createModel(level.difficult);
         if(needMix)
